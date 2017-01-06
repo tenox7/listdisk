@@ -1,0 +1,8 @@
+List and Query Physical Disk Properties on Windows NT based systes
+
+Example of how to list physical disks in Windows NT systems by querying NT Namespace for PhysicalDrive* objects
+
+Example of how to query physical disk for properties via IOCTL
+
+Copyright (c) 2016 by Antoni Sawicki
+
