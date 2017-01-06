@@ -92,7 +92,7 @@ Routine Description:
     STORAGE_PROPERTY_QUERY trim_q = { StorageDeviceTrimProperty,  PropertyStandardQuery };
     DEVICE_TRIM_DESCRIPTOR trim_d = { 0 };
     WCHAR *ft[] = { L"False", L"True" };
-    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"FILEBACKEDVIRTUAL", L"MAX", L"NVME" };
+    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME" };
     OBJECT_ATTRIBUTES attr={0};
     UNICODE_STRING diskname={0};
     WCHAR diskname_s[1024]={0};
