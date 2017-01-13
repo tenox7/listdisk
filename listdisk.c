@@ -92,7 +92,7 @@ Routine Description:
     STORAGE_PROPERTY_QUERY trim_q = { StorageDeviceTrimProperty,  PropertyStandardQuery };
     DEVICE_TRIM_DESCRIPTOR trim_d = { 0 };
     WCHAR *ft[] = { L"False", L"True" };
-    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME" };
+    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN" };
     OBJECT_ATTRIBUTES attr={0};
     UNICODE_STRING diskname={0};
     WCHAR diskname_s[1024]={0};
@@ -135,16 +135,15 @@ Routine Description:
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
-    if(ret==0)
-        if(trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1)
-            wprintf(L"  Trim:      Supported\n");
-        else
-            wprintf(L"  Trim:      Not Supported\n");
+    if(ret==0 && trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1)
+        wprintf(L"  Trim:      Supported\n");
+    else
+        wprintf(L"  Trim:      Not Supported\n");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
     if(ret==0)
-        wprintf(L"  PBTL:      %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
+        wprintf(L"  HBTL:      %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
 
 
     wprintf(L"\n");
@@ -155,6 +154,8 @@ Routine Description:
 
 
 int wmain(int argc, WCHAR **argv) {
+
+    wprintf(L"ListDisk v2.2, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
