@@ -1,8 +1,8 @@
 //
 // List and Query Physical Disk Properties on Windows NT based systes
-// Copyright (c) 2016 by Antoni Sawicki
+// Copyright (c) 2017 by Antoni Sawicki
 //
-// v2.3, as@tenoware.com
+// v2.4, as@tenoware.com
 //
 
 #include <windows.h>
@@ -85,6 +85,7 @@ Routine Description:
 {
     HANDLE hDisk;
     GET_LENGTH_INFORMATION  DiskLengthInfo;
+    GET_DISK_ATTRIBUTES DiskAttributes;
     SCSI_ADDRESS DiskAddress;
     STORAGE_PROPERTY_QUERY desc_q = { StorageDeviceProperty,  PropertyStandardQuery };
     STORAGE_DESCRIPTOR_HEADER desc_h = { 0 };
@@ -98,6 +99,7 @@ Routine Description:
     WCHAR diskname_s[1024]={0};
     IO_STATUS_BLOCK iosb;
     NTSTATUS ret;
+    int i;
 
     _snwprintf_s(diskname_s, sizeof(diskname_s) / sizeof(WCHAR), sizeof(diskname_s), L"\\??\\%s", name);
     RtlInitUnicodeString(&diskname, diskname_s);
@@ -127,6 +129,11 @@ Routine Description:
                 );
     }
 
+    // Status
+    ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DISK_ATTRIBUTES, NULL, 0, &DiskAttributes, sizeof(DiskAttributes));
+    if(ret==0) 
+        wprintf(L"  Status:    %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
+
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
     if(ret==0)
@@ -135,10 +142,8 @@ Routine Description:
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
-    if(ret==0 && trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1)
-        wprintf(L"  Trim:      Supported\n");
-    else
-        wprintf(L"  Trim:      Not Supported\n");
+    if(ret==0)
+        wprintf(L"  Trim:      %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
@@ -155,7 +160,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v2.3, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v2.4, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
