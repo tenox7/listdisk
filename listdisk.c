@@ -128,7 +128,7 @@ Routine Description:
                         (desc_d+desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
                         (desc_d+desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
                         (desc_d+desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
-                        (desc_d->RemovableMedia<=1)         ? ft[desc_d->RemovableMedia] : "???",
+                        (desc_d->RemovableMedia<=1)         ? ft[desc_d->RemovableMedia] : L"(n/a)",
                         (desc_d->BusType<=17)               ? bus[desc_d->BusType] : bus[0]
                 );
     }
@@ -138,14 +138,14 @@ Routine Description:
     if(ret==0) 
         wprintf(L"  Status:    %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
     else
-        wprintf(L"  Status:    Unknown\n");
+        wprintf(L"  Status:    (n/a)\n");
 
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
     if(ret==0)
         wprintf(L"  Size:      %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
     else
-        wprintf(L"  Size:      Unknown\n");
+        wprintf(L"  Size:      (n/a)\n");
 
 
     // Trim
@@ -153,14 +153,14 @@ Routine Description:
     if(ret==0)
         wprintf(L"  Trim:      %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
     else
-        wprintf(L"  Trim:      Unknown\n");
+        wprintf(L"  Trim:      (n/a)\n");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
     if(ret==0)
         wprintf(L"  HBTL:      %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
     else
-        wprintf(L"  HBTL:      Unknown\n");
+        wprintf(L"  HBTL:      (n/a)\n");
 
 
     wprintf(L"\n");
