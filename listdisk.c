@@ -108,8 +108,10 @@ Routine Description:
     //wprintf(L"%s:\n", diskname.Buffer);
 
     ret=NtOpenFile(&hDisk, GENERIC_READ|SYNCHRONIZE, &attr, &iosb, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT);
-    if(ret!=0)
+    if(ret!=0) {
+        wprintf(L"Error: Unable to open %s, NTSTATUS=0x%08X\n\n", diskname.Buffer, ret);
         return;
+    }
 
     // Device Property
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &desc_q, sizeof(desc_q), &desc_h, sizeof(desc_h)) ;
@@ -125,11 +127,11 @@ Routine Description:
                         L"  Serial:    %S\n"
                         L"  Removable: %s\n"
                         L"  BusType:   %s\n", 
-                        (desc_d+desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
-                        (desc_d+desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
-                        (desc_d+desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
-                        (desc_d->RemovableMedia<=1)         ? ft[desc_d->RemovableMedia] : L"(n/a)",
-                        (desc_d->BusType<=17)               ? bus[desc_d->BusType] : bus[0]
+                        (desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
+                        (desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
+                        (desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
+                        (desc_d->RemovableMedia<=1)  ? ft[desc_d->RemovableMedia] : L"(n/a)",
+                        (desc_d->BusType<=17)        ? bus[desc_d->BusType] : bus[0]
                 );
     }
 
