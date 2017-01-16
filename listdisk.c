@@ -93,7 +93,7 @@ Routine Description:
     STORAGE_PROPERTY_QUERY trim_q = { StorageDeviceTrimProperty,  PropertyStandardQuery };
     DEVICE_TRIM_DESCRIPTOR trim_d = { 0 };
     WCHAR *ft[] = { L"False", L"True" };
-    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN",L"UNKNOWN" };
+    WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME"};
     OBJECT_ATTRIBUTES attr={0};
     UNICODE_STRING diskname={0};
     WCHAR diskname_s[1024]={0};
@@ -120,12 +120,16 @@ Routine Description:
         ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &desc_q, sizeof(desc_q), desc_d, desc_h.Size);
         if(ret==0)
             if(desc_d->Version == sizeof(STORAGE_DEVICE_DESCRIPTOR)) 
-                wprintf(L"  Vendor:    %S\n  Product:   %S\n  Serial:    %S\n  Removable: %s\n  BusType:   %s\n", 
+                wprintf(L"  Vendor:    %S\n"
+                        L"  Product:   %S\n"
+                        L"  Serial:    %S\n"
+                        L"  Removable: %s\n"
+                        L"  BusType:   %s\n", 
                         (desc_d+desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
                         (desc_d+desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
                         (desc_d+desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
-                        ft[desc_d->RemovableMedia],
-                        bus[desc_d->BusType]
+                        (desc_d->RemovableMedia<=1)         ? ft[desc_d->RemovableMedia] : "???",
+                        (desc_d->BusType<=17)               ? bus[desc_d->BusType] : bus[0]
                 );
     }
 
@@ -133,22 +137,30 @@ Routine Description:
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DISK_ATTRIBUTES, NULL, 0, &DiskAttributes, sizeof(DiskAttributes));
     if(ret==0) 
         wprintf(L"  Status:    %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
+    else
+        wprintf(L"  Status:    Unknown\n");
 
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
     if(ret==0)
         wprintf(L"  Size:      %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
+    else
+        wprintf(L"  Size:      Unknown\n");
 
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
     if(ret==0)
         wprintf(L"  Trim:      %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
+    else
+        wprintf(L"  Trim:      Unknown\n");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
     if(ret==0)
         wprintf(L"  HBTL:      %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
+    else
+        wprintf(L"  HBTL:      Unknown\n");
 
 
     wprintf(L"\n");
