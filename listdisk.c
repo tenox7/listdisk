@@ -2,7 +2,7 @@
 // List and Query Physical Disk Properties on Windows NT based systes
 // Copyright (c) 2017 by Antoni Sawicki
 //
-// v2.4, as@tenoware.com
+// v2.6, as@tenoware.com
 //
 
 #include <windows.h>
@@ -105,7 +105,6 @@ Routine Description:
     RtlInitUnicodeString(&diskname, diskname_s);
     InitializeObjectAttributes(&attr, &diskname, 0, NULL, NULL);
     wprintf(L"%s:\n", name);
-    //wprintf(L"%s:\n", diskname.Buffer);
 
     ret=NtOpenFile(&hDisk, GENERIC_READ|SYNCHRONIZE, &attr, &iosb, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT);
     if(ret!=0) {
@@ -174,7 +173,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v2.4, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v2.6, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
