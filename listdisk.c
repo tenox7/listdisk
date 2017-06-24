@@ -20,6 +20,7 @@ typedef struct _OBJECT_DIRECTORY_INFORMATION {
 } OBJECT_DIRECTORY_INFORMATION, *POBJECT_DIRECTORY_INFORMATION;
 
 #pragma comment(lib, "ntdll.lib")
+#pragma comment(lib, "ole32.lib")
 
 VOID ListDisk(void);
 VOID QueryDisk(WCHAR *);
@@ -86,6 +87,7 @@ Routine Description:
     HANDLE hDisk;
     GET_LENGTH_INFORMATION  DiskLengthInfo;
     GET_DISK_ATTRIBUTES DiskAttributes;
+    DRIVE_LAYOUT_INFORMATION_EX DiskLayout[1024];
     SCSI_ADDRESS DiskAddress;
     STORAGE_PROPERTY_QUERY desc_q = { StorageDeviceProperty,  PropertyStandardQuery };
     STORAGE_DESCRIPTOR_HEADER desc_h = { 0 };
@@ -94,9 +96,11 @@ Routine Description:
     DEVICE_TRIM_DESCRIPTOR trim_d = { 0 };
     WCHAR *ft[] = { L"False", L"True" };
     WCHAR *bus[] = { L"UNKNOWN", L"SCSI", L"ATAPI", L"ATA", L"1394", L"SSA", L"FC", L"USB", L"RAID", L"ISCSI", L"SAS", L"SATA", L"SD", L"MMC", L"VIRTUAL", L"VHD", L"MAX", L"NVME"};
+    WCHAR *layout[] = { L"MBR", L"GPT", L"RAW" };
     OBJECT_ATTRIBUTES attr={0};
     UNICODE_STRING diskname={0};
     WCHAR diskname_s[1024]={0};
+    WCHAR diskguid_s[1024]={0};
     IO_STATUS_BLOCK iosb;
     NTSTATUS ret;
     int i;
@@ -148,6 +152,21 @@ Routine Description:
     else
         wprintf(L"  Size:      (n/a)\n");
 
+
+    // Layout
+    ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DRIVE_LAYOUT_EX, NULL, 0, &DiskLayout, sizeof(DiskLayout));
+    if(ret==0) {
+        wprintf(L"  Layout:    %s\n", layout[DiskLayout->PartitionStyle]);
+        if(DiskLayout->PartitionStyle == 1) {
+                StringFromGUID2(&DiskLayout->Gpt.DiskId, diskguid_s, sizeof(diskguid_s));
+                wprintf(L"  DiskID:    %s \n", diskguid_s);
+        }
+        else if (DiskLayout->PartitionStyle == 0) {
+                wprintf(L"  DiskID:    %X \n", DiskLayout->Mbr.Signature);
+        }
+    }
+    else
+        wprintf(L"  Layout:    (n/a)\n");
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
