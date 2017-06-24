@@ -2,7 +2,7 @@
 // List and Query Physical Disk Properties on Windows NT based systes
 // Copyright (c) 2017 by Antoni Sawicki
 //
-// v2.6, as@tenoware.com
+// v2.7, as@tenoware.com
 //
 
 #include <windows.h>
@@ -192,7 +192,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v2.6, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v2.7, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
