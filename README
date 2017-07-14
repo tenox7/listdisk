@@ -1,6 +1,6 @@
-Utility to List and Query Physical Disk Properties on Microsoft Windows based systes.
+List and Query Physical Disk Properties on Microsoft Windows based systes.
 
-List disks even in case VDS is not operating. Displays Disk GUIDs used by Microsoft Failover Cluster.
+Displays vendor, product, bus type, serial number, disk GUIDs used by Microsoft Failover Cluster, BTL, trim support, etc. The utility will work even if VDS is frozen or stopped. 
 
 Developer example of how to list physical disks in Windows NT systems by querying NT Namespace for PhysicalDrive* objects and query physical disk for properties via IOCTL.
 
