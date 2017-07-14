@@ -148,15 +148,15 @@ Routine Description:
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
     if(ret==0)
-        wprintf(L"  Size:    : %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
+        wprintf(L"  Size     : %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
     else
-        wprintf(L"  Size:    : (n/a)\n");
+        wprintf(L"  Size     : (n/a)\n");
 
 
     // Layout
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DRIVE_LAYOUT_EX, NULL, 0, &DiskLayout, sizeof(DiskLayout));
     if(ret==0) {
-        wprintf(L"  Layout:  : %s\n", layout[DiskLayout->PartitionStyle]);
+        wprintf(L"  Layout   : %s\n", layout[DiskLayout->PartitionStyle]);
         if(DiskLayout->PartitionStyle == 1) {
                 StringFromGUID2(&DiskLayout->Gpt.DiskId, diskguid_s, sizeof(diskguid_s));
                 wprintf(L"  DiskID:  : %s \n", diskguid_s);
@@ -166,21 +166,21 @@ Routine Description:
         }
     }
     else
-        wprintf(L"  Layout:  : (n/a)\n");
+        wprintf(L"  Layout   : (n/a)\n");
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
     if(ret==0)
-        wprintf(L"  Trim:    : %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
+        wprintf(L"  Trim     : %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
     else
-        wprintf(L"  Trim:    : (n/a)\n");
+        wprintf(L"  Trim     : (n/a)\n");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
     if(ret==0)
-        wprintf(L"  HBTL:    : %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
+        wprintf(L"  HBTL     : %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
     else
-        wprintf(L"  HBTL:    : (n/a)\n");
+        wprintf(L"  HBTL     : (n/a)\n");
 
 
     wprintf(L"\n");
