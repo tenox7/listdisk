@@ -2,7 +2,7 @@
 // List and Query Physical Disk Properties on Windows NT based systes
 // Copyright (c) 2017 by Antoni Sawicki
 //
-// v2.7, as@tenoware.com
+// v2.8, as@tenoware.com
 //
 
 #include <windows.h>
@@ -125,11 +125,11 @@ Routine Description:
         ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &desc_q, sizeof(desc_q), desc_d, desc_h.Size);
         if(ret==0)
             if(desc_d->Version == sizeof(STORAGE_DEVICE_DESCRIPTOR)) 
-                wprintf(L"  Vendor:    %S\n"
-                        L"  Product:   %S\n"
-                        L"  Serial:    %S\n"
+                wprintf(L"  Vendor   : %S\n"
+                        L"  Product  : %S\n"
+                        L"  Serial   : %S\n"
                         L"  Removable: %s\n"
-                        L"  BusType:   %s\n", 
+                        L"  BusType  : %s\n", 
                         (desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
                         (desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
                         (desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
@@ -141,46 +141,46 @@ Routine Description:
     // Status
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DISK_ATTRIBUTES, NULL, 0, &DiskAttributes, sizeof(DiskAttributes));
     if(ret==0) 
-        wprintf(L"  Status:    %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
+        wprintf(L"  Status   : %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
     else
-        wprintf(L"  Status:    (n/a)\n");
+        wprintf(L"  Status   : (n/a)\n");
 
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
     if(ret==0)
-        wprintf(L"  Size:      %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
+        wprintf(L"  Size:    : %.1f GB \n", (float)DiskLengthInfo.Length.QuadPart / 1024.0 / 1024.0 / 1024.0);
     else
-        wprintf(L"  Size:      (n/a)\n");
+        wprintf(L"  Size:    : (n/a)\n");
 
 
     // Layout
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DRIVE_LAYOUT_EX, NULL, 0, &DiskLayout, sizeof(DiskLayout));
     if(ret==0) {
-        wprintf(L"  Layout:    %s\n", layout[DiskLayout->PartitionStyle]);
+        wprintf(L"  Layout:  : %s\n", layout[DiskLayout->PartitionStyle]);
         if(DiskLayout->PartitionStyle == 1) {
                 StringFromGUID2(&DiskLayout->Gpt.DiskId, diskguid_s, sizeof(diskguid_s));
-                wprintf(L"  DiskID:    %s \n", diskguid_s);
+                wprintf(L"  DiskID:  : %s \n", diskguid_s);
         }
         else if (DiskLayout->PartitionStyle == 0) {
-                wprintf(L"  DiskID:    %X \n", DiskLayout->Mbr.Signature);
+                wprintf(L"  DiskID:  : %X \n", DiskLayout->Mbr.Signature);
         }
     }
     else
-        wprintf(L"  Layout:    (n/a)\n");
+        wprintf(L"  Layout:  : (n/a)\n");
 
     // Trim
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_QUERY_PROPERTY, &trim_q, sizeof(trim_q), &trim_d, sizeof(trim_d));
     if(ret==0)
-        wprintf(L"  Trim:      %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
+        wprintf(L"  Trim:    : %s\n", (trim_d.Version == sizeof(DEVICE_TRIM_DESCRIPTOR) && trim_d.TrimEnabled == 1) ? L"Supported" : L"Not Supported");
     else
-        wprintf(L"  Trim:      (n/a)\n");
+        wprintf(L"  Trim:    : (n/a)\n");
 
     // SCSI Address
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_SCSI_GET_ADDRESS, NULL, 0, &DiskAddress, sizeof(DiskAddress));
     if(ret==0)
-        wprintf(L"  HBTL:      %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
+        wprintf(L"  HBTL:    : %d:%d:%d:%d \n", DiskAddress.PortNumber, DiskAddress.PathId, DiskAddress.TargetId, DiskAddress.Lun);
     else
-        wprintf(L"  HBTL:      (n/a)\n");
+        wprintf(L"  HBTL:    : (n/a)\n");
 
 
     wprintf(L"\n");
@@ -192,7 +192,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v2.7, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v2.8, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
