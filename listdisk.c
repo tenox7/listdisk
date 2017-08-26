@@ -2,7 +2,7 @@
 // List and Query Physical Disk and Partition Properties on Windows NT based systes
 // Copyright (c) 2017 by Antoni Sawicki
 //
-// v3.0, as@tenoware.com
+// v3.1, as@tenoware.com
 //
 
 #include <windows.h>
@@ -196,28 +196,42 @@ Routine Description:
                 );
             }
             else if(DiskLayout->PartitionEntry[n].PartitionStyle==PARTITION_STYLE_GPT) {
-                wprintf(L"      Type  : ");
-                if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_ENTRY_UNUSED_GUID)) wprintf(L"Unused");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_SYSTEM_GUID)) wprintf(L"EFI System");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_RESERVED_GUID)) wprintf(L"MSFT Reserved");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_BASIC_DATA_GUID)) wprintf(L"Basic Data");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_LDM_METADATA_GUID)) wprintf(L"LDM Metadata");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_LDM_DATA_GUID)) wprintf(L"LDM Data");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_RECOVERY_GUID)) wprintf(L"MSFT Recovery");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_CLUSTER_GUID)) wprintf(L"Cluster Metadata");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_SNAPSHOT_GUID)) wprintf(L"Shadow Copy");
-                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_SPACES_GUID)) wprintf(L"Storage Spaces");
-                else wprintf(L"Unrecognized");
                 StringFromGUID2(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, guid_s, sizeof(guid_s));
-                wprintf(L" %s\n", guid_s);
+                wprintf(L"      Type  : %s ", guid_s);
+
+                if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_ENTRY_UNUSED_GUID)) wprintf(L"[Unused]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_SYSTEM_GUID)) wprintf(L"[EFI System]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_RESERVED_GUID)) wprintf(L"[MSFT Reserved]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_BASIC_DATA_GUID)) wprintf(L"[Basic Data]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_LDM_METADATA_GUID)) wprintf(L"[LDM Metadata]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_LDM_DATA_GUID)) wprintf(L"[LDM Data]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_RECOVERY_GUID)) wprintf(L"[MSFT Recovery]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_CLUSTER_GUID)) wprintf(L"[Cluster Metadata]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_MSFT_SNAPSHOT_GUID)) wprintf(L"[Shadow Copy]");
+                else if(IsEqualGUID(&DiskLayout->PartitionEntry[n].Gpt.PartitionType, &PARTITION_SPACES_GUID)) wprintf(L"[Storage Spaces]");
+                else wprintf(L"[Unrecognized]");
+                wprintf(L"\n");
+
                 StringFromGUID2(&DiskLayout->PartitionEntry[n].Gpt.PartitionId, guid_s, sizeof(guid_s));
-                wprintf(L"      ID    : %s\n      Attrib: %I64X\n      Name  : %s\n", 
-                    guid_s, DiskLayout->PartitionEntry[n].Gpt.Attributes, 
-                    DiskLayout->PartitionEntry[n].Gpt.Name );
+                wprintf(L"      ID    : %s\n      Name  : %s\n      Attrib: 0x%I64X ", 
+                    guid_s, 
+                    DiskLayout->PartitionEntry[n].Gpt.Name,
+                    DiskLayout->PartitionEntry[n].Gpt.Attributes
+                );
+
+                if((DiskLayout->PartitionEntry[n].Gpt.Attributes & GPT_ATTRIBUTE_PLATFORM_REQUIRED) == GPT_ATTRIBUTE_PLATFORM_REQUIRED) wprintf(L"[Required] ");
+                if((DiskLayout->PartitionEntry[n].Gpt.Attributes & GPT_BASIC_DATA_ATTRIBUTE_NO_DRIVE_LETTER) == GPT_BASIC_DATA_ATTRIBUTE_NO_DRIVE_LETTER) wprintf(L"[No_Letter] ");
+                if((DiskLayout->PartitionEntry[n].Gpt.Attributes & GPT_BASIC_DATA_ATTRIBUTE_HIDDEN) == GPT_BASIC_DATA_ATTRIBUTE_HIDDEN) wprintf(L"[Hidden] ");
+                if((DiskLayout->PartitionEntry[n].Gpt.Attributes & GPT_BASIC_DATA_ATTRIBUTE_SHADOW_COPY) == GPT_BASIC_DATA_ATTRIBUTE_SHADOW_COPY) wprintf(L"[Shadow_Copy] ");
+                if((DiskLayout->PartitionEntry[n].Gpt.Attributes & GPT_BASIC_DATA_ATTRIBUTE_READ_ONLY) == GPT_BASIC_DATA_ATTRIBUTE_READ_ONLY) wprintf(L"[Readonly] ");
+                wprintf(L"\n");
+
             }
-            wprintf(L"      Offset: %llu\n      Length: %llu\n", 
+            wprintf(L"      Offset: %llu (%.1f GB)\n      Length: %llu (%.1fGB)\n", 
                 DiskLayout->PartitionEntry[n].StartingOffset.QuadPart,
-                DiskLayout->PartitionEntry[n].PartitionLength.QuadPart
+                (float)DiskLayout->PartitionEntry[n].StartingOffset.QuadPart/1024/1024/1024,
+                DiskLayout->PartitionEntry[n].PartitionLength.QuadPart,
+                (float)DiskLayout->PartitionEntry[n].PartitionLength.QuadPart/1024/1024/1024
             );
         };
 
@@ -235,7 +249,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v3.0, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v3.1, Copyright (c) 2017 by Antoni Sawicki\n\n");
 
     ListDisk();
 
