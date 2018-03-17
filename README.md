@@ -1,12 +1,13 @@
-List and Query Physical Disk Properties on Microsoft Windows based systes.
+# listdisk
+## List and Query Physical Disk Properties on Microsoft Windows based systes.
 
 Displays vendor, product, bus type, serial number, disk GUIDs used by Microsoft Failover Cluster, BTL, trim support, etc. The utility will work even if VDS is hung or inoperable. 
 
-Developer example of how to list physical disks in Windows NT systems by querying NT Namespace for PhysicalDrive* objects and query physical disk for properties via IOCTL.
-
+Developer example of how to list physical disks in Windows NT systems by querying NT Namespace for PhysicalDrive objects and query physical disk for properties via IOCTL.
 
 Example output:
 
+```
 PhysicalDrive0:
   Vendor   : HP
   Product  : LOGICAL VOLUME
@@ -70,3 +71,4 @@ PhysicalDrive4:
   DiskID:  : {042A9DF8-2992-4C4E-B99D-A3F1755D84AF}
   Trim     : Supported
   HBTL     : 1:0:3:0
+```
