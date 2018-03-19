@@ -262,7 +262,7 @@ Routine Description:
 
 int wmain(int argc, WCHAR **argv) {
 
-    wprintf(L"ListDisk v3.1, Copyright (c) 2017 by Antoni Sawicki\n\n");
+    wprintf(L"ListDisk v3.3, Copyright (c) 2018 by Antoni Sawicki\n\n");
 
     ListDisk();
 
