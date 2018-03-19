@@ -2,7 +2,7 @@
 // List and Query Physical Disk and Partition Properties on Windows NT based systes
 // Copyright (c) 2017-2018 by Antoni Sawicki
 //
-// v3.2, as@tenoware.com
+// v3.3, as@tenoware.com
 //
 
 #include <windows.h>
@@ -132,22 +132,31 @@ Routine Description:
                 wprintf(L"  Vendor    : %S\n"
                         L"  Product   : %S\n"
                         L"  Serial    : %S\n"
-                        L"  Removable : %s\n"
-                        L"  BusType   : %s\n", 
+                        L"  BusType   : %s\n"
+                        L"  Removable : %s\n",
                         (desc_d->VendorIdOffset)     ? (char*)desc_d+desc_d->VendorIdOffset : "(n/a)", 
                         (desc_d->ProductIdOffset)    ? (char*)desc_d+desc_d->ProductIdOffset : "(n/a)",
                         (desc_d->SerialNumberOffset) ? (char*)desc_d+desc_d->SerialNumberOffset : "(n/a)",
-                        (desc_d->RemovableMedia<=1)  ? ft[desc_d->RemovableMedia] : L"(n/a)",
-                        (desc_d->BusType<=17)        ? bus[desc_d->BusType] : bus[0]
+                        (desc_d->BusType<=17)        ? bus[desc_d->BusType] : bus[0],
+                        (desc_d->RemovableMedia<=1)  ? ft[desc_d->RemovableMedia] : L"(n/a)"
                 );
     }
 
     // Status
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_DISK_ATTRIBUTES, NULL, 0, &DiskAttributes, sizeof(DiskAttributes));
     if(ret==0) 
-        wprintf(L"  Status    : %s  \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
+        wprintf(L"  Status    : %s \n", (DiskAttributes.Attributes) ? L"Offline" : L"Online");
     else
         wprintf(L"  Status    : (n/a)\n");
+
+    // Media
+    ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0);
+    wprintf(L"  Media     : %s\n", (ret==0) ? L"Present" : L"Not-present");
+
+    // Readonly
+    ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_IS_WRITABLE, NULL, 0, NULL, 0);
+    wprintf(L"  Readonly  : %s \n", (ret<0) ? L"True" : L"False");
+
 
     // Size
     ret=NtDeviceIoControlFile(hDisk, NULL, NULL, NULL, &iosb, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &DiskLengthInfo, sizeof(DiskLengthInfo));
